@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,4 +18,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::post('subscriptions/{subscription}/pause', [SubscriptionController::class, 'pause']);
     Route::post('subscriptions/{subscription}/resume', [SubscriptionController::class, 'resume']);
     Route::get('subscriptions/{subscription}/payments', [SubscriptionController::class, 'payments']);
+
+    Route::apiResource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
 });

@@ -10,3 +10,6 @@ parameters:
         -
             message: '#uses generic trait .* but does not specify its types#'
             path: app/Models/*
+        -
+            message: '#Call to an undefined method Pest#'
+            path: tests/*

@@ -1,46 +1,60 @@
-# apps/web — Next.js 16 client
+# Subscription Tracker — Monorepo
 
-Thin SPA client for the Laravel API. Spec: `../../docs/specs/subscription-tracker-spec.md`
-(§2, §10).
+Pet/portfolio project: personal subscription tracker. Goal — showcase **idiomatic
+Laravel** on a compact but realistic domain. Full spec:
+[`docs/specs/subscription-tracker-spec.md`](docs/specs/subscription-tracker-spec.md).
+Implementation broken into tasks under [`docs/tasks/`](docs/tasks/).
 
-Stack rules (auto-imported):
+## Layout
 
-@.claude/rules/code-style.md
-@.claude/rules/architecture.md
-
-## Requirements
-
-- Node 22+, Next.js 16 (App Router, React 19, Turbopack), TypeScript
-- TailwindCSS, TanStack Query, React Hook Form + Zod, Recharts, Axios
-
-## Setup
-
-```bash
-docker compose up -d web        # or: cd apps/web && pnpm install && pnpm dev
+```
+apps/api/   Laravel 13 REST API (PHP 8.3, Sanctum, Postgres, Redis queues)
+apps/web/   Next.js 16 client (React 19, TS, TanStack Query)
+docker/     Dockerfiles + nginx config
+docs/       specs/ (source of truth) + tasks/ (work breakdown)
 ```
 
-Set `NEXT_PUBLIC_API_URL` to the API base (via root compose env).
+Two independent builds under one repo, connected only over HTTP.
 
-## Common commands
+## Tech stack (see spec §2)
 
-```bash
-pnpm dev      # next dev (Turbopack)
-pnpm build    # production build — keep clean before done
-pnpm lint     # ESLint
-```
+- **API**: PHP 8.3+, Laravel 13, Sanctum, PostgreSQL 16, Redis, Pest 3, Pint,
+  Larastan/PHPStan level 8. php-fpm behind nginx.
+- **Web**: Next.js 16 (App Router, React 19), TypeScript, TailwindCSS, TanStack Query,
+  React Hook Form + Zod, Recharts.
+- **Infra**: Docker Compose (api, nginx, web, postgres, redis, queue, scheduler), Make,
+  GitHub Actions.
 
-## Architecture (see .claude/rules/architecture.md)
+## Architecture decisions (spec §9, §15)
 
-- App Router under `src/app` with `(auth)` (public) and `(app)` (guarded) route groups.
-- `lib/api.ts` — axios instance + token interceptor (Sanctum bearer).
-- `lib/queries.ts` — all server state via TanStack Query; invalidate after mutations.
-- Forms with RHF + Zod; types in `types/api.ts`.
-- Screens: dashboard (Recharts donut + totals + upcoming), subscriptions list/detail/form,
-  notifications. No SSR/ISR depth (spec §15).
+- Backend uses the **Action-class** pattern (thin controllers) — not modules, not a
+  service/repository layer.
+- Frontend is a **thin Next.js client** — no SSR/ISR depth.
+- Out of scope: real payment integration, multi-currency conversion, expense-splitting,
+  roles/sharing (single-user).
 
-## Relevant agents / skills (in root .claude)
+## Claude tooling layout
 
-Agent: `qa` (Playwright E2E). Skills: `playwright-expert`, `playwright-skill`.
+All runtime config lives at the **repo root** (`claude` is launched from here):
+- `.claude/agents/`, `.claude/skills/` — every agent/skill (cross-stack + Laravel + web).
+- `.claude/settings.json` — model, `.env` denials, Pint Stop-hook (guarded; no-ops until
+  the `api` container is up).
+- `.mcp.json` — `github`, `context7`, `laravel-boost` (root-only; subdir `.mcp.json` is
+  not supported by Claude Code).
 
-> The original toolkit's Vue 3 + Inertia.js frontend agent/skills do not apply here and
-> were dropped — this is a standalone Next.js client over HTTP.
+Stack-specific **rules** are split per app and pulled in via the `@`-imports below
+(Claude Code does not auto-load subdir `settings`/`.mcp.json`, and nested `CLAUDE.md`
+auto-load is unreliable — explicit imports guarantee loading):
+
+@.claude/rules/git-operations.md
+@.claude/rules/workflow.md
+@.claude/rules/code-comments.md
+@apps/api/CLAUDE.md
+@apps/web/CLAUDE.md
+
+## Stack note vs. inherited toolkit
+
+The `tmp/` toolkit was authored for a different stack (Laravel 12 + Inertia.js + Vue 3 +
+Octane/FrankenPHP + Filament + Rector + PHP 8.4). It was curated: Inertia/Vue/Filament
+agents and duplicate skills were dropped, and rules rewritten to match this spec. `tmp/`
+is left intact as a staging area for files you add later.

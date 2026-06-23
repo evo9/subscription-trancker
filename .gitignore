@@ -1,41 +1,24 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Environment
+.env
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
+# Dependencies
+apps/api/vendor/
+apps/web/node_modules/
+apps/web/.next/
 
-# testing
-/coverage
+# Laravel storage / cache
+apps/api/storage/logs/*
+apps/api/storage/framework/cache/*
+apps/api/storage/framework/sessions/*
+apps/api/storage/framework/views/*
+apps/api/bootstrap/cache/*.php
+!apps/api/storage/logs/.gitkeep
+!apps/api/storage/framework/cache/.gitkeep
+!apps/api/storage/framework/sessions/.gitkeep
+!apps/api/storage/framework/views/.gitkeep
 
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
+# OS / Editor
 .DS_Store
-*.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+*.swp
+.idea/
+.vscode/

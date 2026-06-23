@@ -1,0 +1,12 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - database/seeders
+    level: 8
+    ignoreErrors:
+        -
+            message: '#uses generic trait .* but does not specify its types#'
+            path: app/Models/*

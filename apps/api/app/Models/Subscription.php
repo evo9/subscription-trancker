@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\BillingCycle;
 use App\Enums\SubscriptionStatus;
 use Database\Factories\SubscriptionFactory;
+use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -131,9 +132,25 @@ class Subscription extends Model
      */
     public function scopeDueForReminder(Builder $query): Builder
     {
-        return $query->whereRaw(
-            "next_billing_date BETWEEN CURRENT_DATE AND CURRENT_DATE + (notify_days_before * INTERVAL '1 day')",
-        );
+        /** @var Connection $connection */
+        $connection = $query->getConnection();
+        $today = now()->toDateString();
+
+        if ($connection->getDriverName() === 'sqlite') {
+            return $query
+                ->where('next_billing_date', '>=', $today)
+                ->whereRaw(
+                    "date(next_billing_date, '-' || notify_days_before || ' days') <= ?",
+                    [$today],
+                );
+        }
+
+        return $query
+            ->where('next_billing_date', '>=', $today)
+            ->whereRaw(
+                'next_billing_date - notify_days_before <= CAST(? AS date)',
+                [$today],
+            );
     }
 
     /** @return Attribute<float, never> */

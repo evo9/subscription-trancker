@@ -6,7 +6,7 @@ on:
 
 jobs:
   api:
-    name: PHP 8.3 — Pint · PHPStan · Pest
+    name: PHP 8.4 — Pint · PHPStan · Pest
     runs-on: ubuntu-latest
 
     defaults:
@@ -16,10 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up PHP 8.3
+      - name: Set up PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
           extensions: pdo_sqlite, pdo_pgsql
           coverage: none
 

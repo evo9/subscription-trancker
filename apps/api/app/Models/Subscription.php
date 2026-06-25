@@ -134,13 +134,23 @@ class Subscription extends Model
     {
         /** @var Connection $connection */
         $connection = $query->getConnection();
-        $upper = $connection->getDriverName() === 'sqlite'
-            ? "date('now', '+' || notify_days_before || ' days')"
-            : "CURRENT_DATE + (notify_days_before * INTERVAL '1 day')";
+        $today = now()->toDateString();
 
-        return $query->whereRaw(
-            "next_billing_date BETWEEN CURRENT_DATE AND {$upper}",
-        );
+        if ($connection->getDriverName() === 'sqlite') {
+            return $query
+                ->where('next_billing_date', '>=', $today)
+                ->whereRaw(
+                    "date(next_billing_date, '-' || notify_days_before || ' days') <= ?",
+                    [$today],
+                );
+        }
+
+        return $query
+            ->where('next_billing_date', '>=', $today)
+            ->whereRaw(
+                'next_billing_date - notify_days_before <= CAST(? AS date)',
+                [$today],
+            );
     }
 
     /** @return Attribute<float, never> */

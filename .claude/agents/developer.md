@@ -153,5 +153,10 @@ docker compose exec api php artisan test
 
 - **Never run git** — add/commit/push are hard-blocked; the human owns git (`git-operations.md`).
 - Always run artisan/composer/pint/phpstan inside `docker compose exec api`.
-- Thin controllers; logic in Actions/enums/scopes. Prefer `query()` and relationships.
+- **HARD RULE — no logic in controllers (reads included):** a method does only
+  validate (Form Request) → Policy → **one Action** → Resource/`JsonResponse`. Any inline
+  query, aggregation (`groupBy`/`map`/`sum`), hashing, token issuance, job/event dispatch or
+  notification belongs in an Action; reuse queries via model scopes. Only exception: a single
+  `Model::query()->scopes()->get()` wrapped straight into a Resource. Full rule in
+  `apps/api/.claude/rules/architecture.md`.
 - No Inertia/Vue/Blade/Octane/Filament/Rector — out of scope for this project.

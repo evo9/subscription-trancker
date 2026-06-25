@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 final class BuildStatsSummary
 {
     /**
-     * @return array{monthly_total: float, yearly_total: float, by_category: list<array<string, mixed>>}
+     * @return array{monthly_total: float, yearly_total: float, by_category: array<int, array<string, mixed>>}
      */
     public function handle(User $user): array
     {

@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  api:
+    name: PHP 8.3 — Pint · PHPStan · Pest
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: apps/api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, pdo_pgsql
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: apps/api/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('apps/api/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Check code style (Pint)
+        run: ./vendor/bin/pint --test
+
+      - name: Static analysis (PHPStan level 8)
+        run: ./vendor/bin/phpstan analyse
+
+      - name: Run test suite (Pest)
+        run: php artisan test

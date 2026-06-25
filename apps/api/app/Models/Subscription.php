@@ -29,6 +29,8 @@ use Illuminate\Support\Carbon;
  * @method static Builder<self> forUser(User $user)
  * @method static Builder<self> active()
  * @method static Builder<self> dueWithin(int $days)
+ * @method static Builder<self> dueForRenewal()
+ * @method static Builder<self> dueForReminder()
  */
 #[Fillable([
     'user_id',
@@ -110,6 +112,28 @@ class Subscription extends Model
             now()->toDateString(),
             now()->addDays($days)->toDateString(),
         ]);
+    }
+
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     */
+    public function scopeDueForRenewal(Builder $query): Builder
+    {
+        return $query->whereDate('next_billing_date', '<=', now()->toDateString());
+    }
+
+    /**
+     * @param  Builder<self>  $query
+     * @return Builder<self>
+     *
+     * Matches each subscription's own notify_days_before window using a column expression.
+     */
+    public function scopeDueForReminder(Builder $query): Builder
+    {
+        return $query->whereRaw(
+            "next_billing_date BETWEEN CURRENT_DATE AND CURRENT_DATE + (notify_days_before * INTERVAL '1 day')",
+        );
     }
 
     /** @return Attribute<float, never> */

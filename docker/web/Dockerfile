@@ -10,4 +10,4 @@ COPY apps/web/ .
 
 EXPOSE 3000
 
-CMD ["./node_modules/.bin/next", "dev"]
+CMD ["sh", "-c", "pnpm install --frozen-lockfile --ignore-scripts && exec ./node_modules/.bin/next dev"]

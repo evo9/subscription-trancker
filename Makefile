@@ -34,7 +34,7 @@ test:
 	docker compose exec api php artisan test
 
 stan:
-	docker compose exec api ./vendor/bin/phpstan analyse
+	docker compose exec api ./vendor/bin/phpstan analyse --memory-limit=512M
 
 pint:
 	docker compose exec api ./vendor/bin/pint
